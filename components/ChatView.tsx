@@ -118,7 +118,7 @@ function ChatViewInner({
     [getIdToken, effectiveChatId],
   );
 
-  const { messages, sendMessage, status, stop } = useChat({
+  const { messages, sendMessage, status, stop, error, clearError } = useChat({
     id: effectiveChatId,
     messages: initialMessages as unknown as UIMessage[],
     transport,
@@ -176,6 +176,7 @@ function ChatViewInner({
               )}
             </div>
           )}
+          {error && <ErrorBanner error={error} onDismiss={clearError} />}
         </div>
       </div>
 
@@ -288,6 +289,36 @@ function TypingDots() {
       <span className="w-2 h-2 rounded-full bg-neutral-400 animate-bounce [animation-delay:-0.3s]" />
       <span className="w-2 h-2 rounded-full bg-neutral-400 animate-bounce [animation-delay:-0.15s]" />
       <span className="w-2 h-2 rounded-full bg-neutral-400 animate-bounce" />
+    </div>
+  );
+}
+
+function ErrorBanner({
+  error,
+  onDismiss,
+}: {
+  error: Error;
+  onDismiss: () => void;
+}) {
+  const raw = error.message || "";
+  let text =
+    "אירעה שגיאה בשליחת ההודעה. ייתכן שהשירות עמוס כרגע — נסה שוב עוד רגע.";
+  if (/rate_limited|יותר מדי שאלות/.test(raw)) {
+    text = "יותר מדי שאלות בזמן קצר. המתן רגע ונסה שוב.";
+  } else if (/מכסת השאלות היומית/.test(raw)) {
+    text = "חרגת ממכסת השאלות היומית. נסה שוב מחר.";
+  }
+
+  return (
+    <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <span>{text}</span>
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="shrink-0 rounded-lg px-3 py-1 font-medium hover:bg-red-100 transition-colors"
+      >
+        סגור
+      </button>
     </div>
   );
 }

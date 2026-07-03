@@ -10,6 +10,7 @@ import {
   ensureUser,
   touchChat,
 } from "@/lib/chat-store-admin";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -53,6 +54,29 @@ export async function POST(req: Request) {
   }
   const uid = decoded.uid;
 
+  // Per-user rate limiting — protects the shared AI quota from a single abuser.
+  let rate;
+  try {
+    rate = await checkRateLimit(uid);
+  } catch (err) {
+    // Fail open: if the limiter itself errors, don't block the user.
+    console.error("[chat] rate limiter error (failing open):", err);
+    rate = { ok: true as const, dayRemaining: -1 };
+  }
+  if (!rate.ok) {
+    const message =
+      rate.reason === "day"
+        ? "חרגת ממכסת השאלות היומית. נסה שוב מחר."
+        : "יותר מדי שאלות בזמן קצר. המתן רגע ונסה שוב.";
+    return new Response(JSON.stringify({ error: "rate_limited", message }), {
+      status: 429,
+      headers: {
+        "Content-Type": "application/json",
+        "Retry-After": String(rate.retryAfterSec),
+      },
+    });
+  }
+
   const body = (await req.json()) as {
     messages: UIMessage[];
     chatId?: string | null;
@@ -90,7 +114,13 @@ export async function POST(req: Request) {
     model: google("gemini-2.5-flash"),
     system: buildSystemPrompt(context),
     messages: await convertToModelMessages(messages),
-    onFinish: async ({ text }) => {
+    // Don't auto-retry: on a 429 the SDK default (2 retries) triples the load
+    // during a spike. Surface the error cleanly instead.
+    maxRetries: 0,
+    onFinish: async ({ text, usage }) => {
+      console.log(
+        `[chat] usage uid=${uid} chat=${chatId} in=${usage.inputTokens} out=${usage.outputTokens} total=${usage.totalTokens}`,
+      );
       if (!text) return;
       try {
         // Ensure the user message + chat metadata land first, then save the reply
