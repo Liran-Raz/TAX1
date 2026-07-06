@@ -180,8 +180,10 @@ export default function LandingPage() {
               <Logo className="h-6 w-6" />
               <span className="font-semibold">ChatTAX</span>
             </div>
-            <div className="flex gap-4 text-sm text-muted">
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted">
               <Link href="/pricing" className="hover:text-neutral-900">תוכניות</Link>
+              <Link href="/terms" className="hover:text-neutral-900">תנאי שימוש</Link>
+              <Link href="/privacy" className="hover:text-neutral-900">מדיניות פרטיות</Link>
               <Link href="/login" className="hover:text-neutral-900">התחברות</Link>
             </div>
           </div>
