@@ -71,6 +71,48 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
+/* Legal document typography */
+.legal h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 2rem 0 0.6rem;
+  scroll-margin-top: 5rem;
+}
+.legal h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.35rem;
+}
+.legal p {
+  line-height: 1.85;
+  margin: 0.6rem 0;
+  color: #33384a;
+}
+.legal ul,
+.legal ol {
+  margin: 0.5rem 0;
+  padding-inline-start: 1.5rem;
+  line-height: 1.85;
+  color: #33384a;
+}
+.legal ul {
+  list-style: disc;
+}
+.legal ol {
+  list-style: decimal;
+}
+.legal li {
+  margin: 0.3rem 0;
+}
+.legal strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+.legal a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 /* Thin, unobtrusive scrollbars */
 .chat-scroll::-webkit-scrollbar,
 .sidebar-scroll::-webkit-scrollbar {

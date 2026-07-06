@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
@@ -72,8 +73,15 @@ export default function LoginPage() {
         )}
 
         <p className="mt-6 text-center text-xs leading-relaxed text-muted">
-          בהתחברות אתה מסכים לתנאי השימוש. המידע שנשמר: כתובת אימייל, שם, ותוכן
-          השיחות שלך — לצורך תפעול השירות בלבד.
+          בהתחברות אתה מסכים ל
+          <Link href="/terms" className="text-accent hover:underline">
+            תנאי השימוש
+          </Link>{" "}
+          ול
+          <Link href="/privacy" className="text-accent hover:underline">
+            מדיניות הפרטיות
+          </Link>
+          .
         </p>
       </div>
     </div>
