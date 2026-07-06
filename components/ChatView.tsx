@@ -6,6 +6,7 @@ import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { db } from "@/lib/firebase-client";
+import { USAGE_EVENT } from "@/components/UsageMeter";
 
 const EXAMPLE_QUESTIONS = [
   "אני עוסק פטור. מה תקרת המחזור לשנה?",
@@ -130,6 +131,10 @@ function ChatViewInner({
         if (window.location.pathname !== desired) {
           window.history.replaceState(null, "", desired);
         }
+      }
+      // Refresh the usage meter now that a question was consumed.
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event(USAGE_EVENT));
       }
     },
   });
