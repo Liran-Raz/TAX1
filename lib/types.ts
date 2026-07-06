@@ -2,7 +2,7 @@
 // `createdAt` / `updatedAt` are stored as Firestore Timestamps server-side,
 // and converted to ISO strings when returned to the client.
 
-export type PlanId = "free" | "basic" | "pro";
+export type PlanId = "free" | "pro" | "ultra";
 
 export type UsageSnapshot = {
   plan: PlanId;

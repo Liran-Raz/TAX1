@@ -20,17 +20,18 @@ type Limits = {
   perMonth: number;
 };
 
-// Approved tier limits (₪0 / ₪39 / ₪99).
+// Approved tier limits. Plan ids match the Lemon Squeezy products:
+//   free = ₪0, pro = ₪39.99/mo, ultra = ₪99.99/mo.
 export const PLANS: Record<PlanId, Limits> = {
   free: { perMinute: 5, perHour: 20, perDay: 50, per14Days: 100, perMonth: 150 },
-  basic: {
+  pro: {
     perMinute: 10,
     perHour: 100,
     perDay: 300,
     per14Days: Infinity,
     perMonth: 1500,
   },
-  pro: {
+  ultra: {
     perMinute: 20,
     perHour: 300,
     perDay: Infinity,
@@ -101,7 +102,7 @@ function sumMonth(days: DaysMap, monthPrefix: string): number {
 export async function getPlan(uid: string): Promise<PlanId> {
   const snap = await adminDb.collection("users").doc(uid).get();
   const plan = snap.exists ? (snap.data()?.plan as PlanId | undefined) : undefined;
-  return plan === "basic" || plan === "pro" ? plan : "free";
+  return plan === "pro" || plan === "ultra" ? plan : "free";
 }
 
 export type RateResult =
