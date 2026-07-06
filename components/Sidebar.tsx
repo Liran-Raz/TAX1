@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { subscribeToChats } from "@/lib/chat-store-client";
 import type { Chat } from "@/lib/types";
 import { LogoMark } from "@/components/MobileHeader";
+import { UsageMeter } from "@/components/UsageMeter";
 
 export function Sidebar({
   open,
@@ -104,8 +105,9 @@ export function Sidebar({
           )}
         </nav>
 
-        {/* User + sign out */}
+        {/* Usage + user + sign out */}
         <div className="safe-bottom border-t border-border p-3">
+          <UsageMeter />
           <div className="mb-2 flex items-center gap-2 px-1">
             {user?.photoURL ? (
               // eslint-disable-next-line @next/next/no-img-element

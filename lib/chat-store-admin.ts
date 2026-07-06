@@ -33,18 +33,29 @@ function makeTitle(text: string): string {
   return cleaned.slice(0, MAX_TITLE_CHARS - 1).trimEnd() + "…";
 }
 
-/** Create the user document lazily on first activity. */
+/** Create the user document lazily on first activity. Sets `plan: "free"` on
+ *  creation but never overwrites an existing plan (upgrades set it elsewhere). */
 export async function ensureUser(
   uid: string,
   meta: { email?: string | null; displayName?: string | null },
 ): Promise<void> {
   const { userRef } = collections(uid);
+  const snap = await userRef.get();
+  if (!snap.exists) {
+    await userRef.set({
+      email: meta.email ?? null,
+      displayName: meta.displayName ?? null,
+      plan: "free",
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    return;
+  }
   await userRef.set(
     {
       email: meta.email ?? null,
       displayName: meta.displayName ?? null,
       updatedAt: FieldValue.serverTimestamp(),
-      createdAt: FieldValue.serverTimestamp(),
     },
     { merge: true },
   );

@@ -3,14 +3,14 @@ import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { randomUUID } from "node:crypto";
 import { buildSystemPrompt } from "@/lib/system-prompt";
 import { retrieveContext } from "@/lib/rag";
-import { adminAuth } from "@/lib/firebase-admin";
+import { verifyBearer } from "@/lib/auth";
 import {
   appendMessage,
   ensureChat,
   ensureUser,
   touchChat,
 } from "@/lib/chat-store-admin";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, type RateResult } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -36,45 +36,42 @@ function lastUserMessage(messages: UIMessage[]): UIMessage | null {
   return null;
 }
 
-async function verifyAuth(req: Request) {
-  const header = req.headers.get("authorization") ?? "";
-  const match = /^Bearer\s+(.+)$/.exec(header);
-  if (!match) return null;
-  try {
-    return await adminAuth.verifyIdToken(match[1]);
-  } catch {
-    return null;
-  }
-}
+const RATE_MESSAGES: Record<
+  Extract<RateResult, { ok: false }>["reason"],
+  string
+> = {
+  minute: "שלחת יותר מדי שאלות בזמן קצר. המתן דקה ונסה שוב.",
+  hour: "הגעת למכסת השאלות לשעה זו. נסה שוב מאוחר יותר.",
+  day: "הגעת למכסת השאלות היומית. נסה שוב מחר.",
+  quota: "הגעת למכסת השאלות של התוכנית שלך. ניתן לשדרג להמשך שימוש.",
+};
 
 export async function POST(req: Request) {
-  const decoded = await verifyAuth(req);
+  const decoded = await verifyBearer(req);
   if (!decoded) {
     return new Response("Unauthorized", { status: 401 });
   }
   const uid = decoded.uid;
 
-  // Per-user rate limiting — protects the shared AI quota from a single abuser.
-  let rate;
+  // Per-user, plan-aware rate limiting. Fail open if the limiter itself errors.
+  let rate: RateResult | null = null;
   try {
     rate = await checkRateLimit(uid);
   } catch (err) {
-    // Fail open: if the limiter itself errors, don't block the user.
     console.error("[chat] rate limiter error (failing open):", err);
-    rate = { ok: true as const, dayRemaining: -1 };
+    rate = null;
   }
-  if (!rate.ok) {
-    const message =
-      rate.reason === "day"
-        ? "חרגת ממכסת השאלות היומית. נסה שוב מחר."
-        : "יותר מדי שאלות בזמן קצר. המתן רגע ונסה שוב.";
-    return new Response(JSON.stringify({ error: "rate_limited", message }), {
-      status: 429,
-      headers: {
-        "Content-Type": "application/json",
-        "Retry-After": String(rate.retryAfterSec),
+  if (rate && !rate.ok) {
+    return new Response(
+      JSON.stringify({ error: "rate_limited", message: RATE_MESSAGES[rate.reason] }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(rate.retryAfterSec),
+        },
       },
-    });
+    );
   }
 
   const body = (await req.json()) as {
