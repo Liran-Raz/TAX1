@@ -1,13 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #171717;
+  /* Surfaces */
+  --background: #f6f7f9;
+  --foreground: #1a2030;
   --card: #ffffff;
-  --border: #e5e5e5;
+  --border: #e7e9ee;
+  --muted: #6b7280;
+
+  /* Brand — deep, trustworthy blue for a finance product */
   --accent: #2563eb;
+  --accent-hover: #1d4ed8;
   --accent-foreground: #ffffff;
-  --muted: #737373;
+  --accent-soft: #eef3ff;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 4px 16px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.14);
 }
 
 @theme inline {
@@ -15,30 +25,63 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-border: var(--border);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
   --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
   --font-sans: var(--font-rubik), system-ui, -apple-system, sans-serif;
+}
+
+html {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  /* Avoid rubber-band scroll bleed on mobile */
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Smooth scroll for chat area */
+/* Smooth scroll for the chat area */
 .chat-scroll {
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Basic typography for assistant messages */
+/* Assistant message typography */
 .assistant-content {
-  line-height: 1.7;
+  line-height: 1.75;
   white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
-
 .assistant-content strong {
   font-weight: 600;
+}
+
+/* iOS safe-area helpers (notch / home indicator) */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Thin, unobtrusive scrollbars */
+.chat-scroll::-webkit-scrollbar,
+.sidebar-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-scroll::-webkit-scrollbar-thumb,
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #d5d8df;
+  border-radius: 9999px;
+}
+.chat-scroll::-webkit-scrollbar-track,
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }

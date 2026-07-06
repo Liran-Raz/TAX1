@@ -37,11 +37,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
-      <div className="w-full max-w-md bg-card border border-border rounded-2xl p-8 shadow-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold mb-2">עוזר מיסוי לעסקים</h1>
-          <p className="text-muted text-sm">
+    <div className="flex min-h-[100dvh] items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-7 shadow-md sm:p-8">
+        <div className="mb-8 text-center">
+          <div className="mb-4 flex justify-center">
+            <svg viewBox="0 0 56 56" className="h-14 w-14" aria-hidden>
+              <rect width="56" height="56" rx="16" fill="var(--accent)" />
+              <path
+                d="M16 21h24M28 21v18"
+                stroke="#fff"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+          <h1 className="mb-2 text-2xl font-semibold">עוזר מיסוי לעסקים</h1>
+          <p className="text-sm text-muted">
             צ&apos;אט חכם לשאלות על מע&quot;מ, מס הכנסה, ומבני עסק בישראל
           </p>
         </div>
@@ -50,17 +61,17 @@ export default function LoginPage() {
           type="button"
           onClick={handleSignIn}
           disabled={signingIn}
-          className="w-full flex items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-3 font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-3.5 font-medium transition-colors hover:bg-neutral-50 active:bg-neutral-100 disabled:opacity-50"
         >
           <GoogleIcon />
           {signingIn ? "מתחבר..." : "התחבר עם Google"}
         </button>
 
         {error && (
-          <p className="mt-4 text-sm text-red-600 text-center">{error}</p>
+          <p className="mt-4 text-center text-sm text-red-600">{error}</p>
         )}
 
-        <p className="mt-6 text-xs text-muted text-center leading-relaxed">
+        <p className="mt-6 text-center text-xs leading-relaxed text-muted">
           בהתחברות אתה מסכים לתנאי השימוש. המידע שנשמר: כתובת אימייל, שם, ותוכן
           השיחות שלך — לצורך תפעול השירות בלבד.
         </p>

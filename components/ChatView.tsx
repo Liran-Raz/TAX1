@@ -150,12 +150,12 @@ function ChatViewInner({
   };
 
   return (
-    <div className="flex flex-col h-screen w-full">
+    <div className="flex h-full min-h-0 w-full flex-col">
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto chat-scroll px-4 py-6 sm:px-6"
+        className="chat-scroll flex-1 overflow-y-auto px-3 py-5 sm:px-6"
       >
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           {messages.length === 0 ? (
             <EmptyState onPick={submit} />
           ) : (
@@ -169,7 +169,7 @@ function ChatViewInner({
               ))}
               {status === "submitted" && (
                 <div className="flex justify-start">
-                  <div className="bg-card border border-border rounded-2xl px-4 py-3">
+                  <div className="rounded-2xl rounded-tr-md border border-border bg-card px-4 py-3 shadow-sm">
                     <TypingDots />
                   </div>
                 </div>
@@ -180,8 +180,8 @@ function ChatViewInner({
         </div>
       </div>
 
-      <div className="border-t border-border bg-card px-4 py-4 sm:px-6">
-        <div className="max-w-3xl mx-auto">
+      <div className="safe-bottom border-t border-border bg-card px-3 py-3 sm:px-6 sm:py-4">
+        <div className="mx-auto max-w-3xl">
           <form
             className="flex items-end gap-2"
             onSubmit={(e) => {
@@ -190,7 +190,7 @@ function ChatViewInner({
             }}
           >
             <textarea
-              className="flex-1 resize-none rounded-xl border border-border bg-background px-4 py-3 text-base outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors max-h-40"
+              className="max-h-40 flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-3 text-base outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent"
               placeholder="שאל שאלה על מיסוי, מע&quot;מ, הוצאות..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -207,21 +207,25 @@ function ChatViewInner({
               <button
                 type="button"
                 onClick={() => stop()}
-                className="rounded-xl bg-neutral-800 text-white px-5 py-3 font-medium hover:bg-neutral-700 transition-colors"
+                aria-label="עצור"
+                className="flex h-[50px] shrink-0 items-center justify-center gap-2 rounded-2xl bg-neutral-800 px-4 font-medium text-white transition-colors hover:bg-neutral-700 sm:px-5"
               >
-                עצור
+                <StopIcon />
+                <span className="hidden sm:inline">עצור</span>
               </button>
             ) : (
               <button
                 type="submit"
                 disabled={!input.trim()}
-                className="rounded-xl bg-accent text-accent-foreground px-5 py-3 font-medium hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="שלח"
+                className="flex h-[50px] shrink-0 items-center justify-center gap-2 rounded-2xl bg-accent px-4 font-medium text-accent-foreground shadow-sm transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40 sm:px-5"
               >
-                שלח
+                <SendIcon />
+                <span className="hidden sm:inline">שלח</span>
               </button>
             )}
           </form>
-          <p className="text-xs text-muted text-center mt-3">
+          <p className="mt-2.5 text-center text-[11px] leading-relaxed text-muted sm:text-xs">
             מידע כללי בלבד ואינו מהווה ייעוץ מקצועי. בסוגיות מורכבות פנה
             לרו&quot;ח מוסמך.
           </p>
@@ -233,10 +237,15 @@ function ChatViewInner({
 
 function EmptyState({ onPick }: { onPick: (q: string) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center py-8">
-      <div className="max-w-md">
-        <h2 className="text-2xl font-semibold mb-2">שלום 👋</h2>
-        <p className="text-muted mb-8">
+    <div className="flex min-h-[62vh] flex-col items-center justify-center px-1 text-center">
+      <div className="w-full max-w-md">
+        <div className="mb-4 flex justify-center">
+          <BigLogo />
+        </div>
+        <h2 className="mb-1.5 text-xl font-semibold sm:text-2xl">
+          שלום 👋 איך אפשר לעזור?
+        </h2>
+        <p className="mb-7 text-sm text-muted sm:text-base">
           אני עוזר מיסוי לבעלי עסקים בישראל. בחר שאלה לדוגמה או כתוב את שלך.
         </p>
         <div className="grid gap-2">
@@ -244,7 +253,7 @@ function EmptyState({ onPick }: { onPick: (q: string) => void }) {
             <button
               key={q}
               onClick={() => onPick(q)}
-              className="text-right rounded-xl border border-border bg-card px-4 py-3 text-sm hover:border-accent hover:bg-blue-50 transition-colors"
+              className="rounded-xl border border-border bg-card px-4 py-3 text-right text-sm shadow-sm transition-colors hover:border-accent hover:bg-accent-soft active:bg-accent-soft"
             >
               {q}
             </button>
@@ -255,13 +264,7 @@ function EmptyState({ onPick }: { onPick: (q: string) => void }) {
   );
 }
 
-function MessageBubble({
-  role,
-  parts,
-}: {
-  role: string;
-  parts: UIPart[];
-}) {
+function MessageBubble({ role, parts }: { role: string; parts: UIPart[] }) {
   const isUser = role === "user";
   const text = parts
     .filter((p) => p.type === "text")
@@ -273,8 +276,8 @@ function MessageBubble({
       <div
         className={
           isUser
-            ? "bg-accent text-accent-foreground rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]"
-            : "bg-card border border-border rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%] assistant-content"
+            ? "max-w-[88%] rounded-2xl rounded-tl-md bg-accent px-4 py-2.5 text-accent-foreground shadow-sm sm:max-w-[85%]"
+            : "assistant-content max-w-[88%] rounded-2xl rounded-tr-md border border-border bg-card px-4 py-3 shadow-sm sm:max-w-[85%]"
         }
       >
         {text}
@@ -285,11 +288,53 @@ function MessageBubble({
 
 function TypingDots() {
   return (
-    <div className="flex gap-1 items-center h-5">
-      <span className="w-2 h-2 rounded-full bg-neutral-400 animate-bounce [animation-delay:-0.3s]" />
-      <span className="w-2 h-2 rounded-full bg-neutral-400 animate-bounce [animation-delay:-0.15s]" />
-      <span className="w-2 h-2 rounded-full bg-neutral-400 animate-bounce" />
+    <div className="flex h-5 items-center gap-1">
+      <span className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]" />
+      <span className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]" />
+      <span className="h-2 w-2 animate-bounce rounded-full bg-neutral-400" />
     </div>
+  );
+}
+
+function BigLogo() {
+  return (
+    <svg viewBox="0 0 56 56" className="h-14 w-14" aria-hidden>
+      <rect width="56" height="56" rx="16" fill="var(--accent)" />
+      <path
+        d="M16 21h24M28 21v18"
+        stroke="#fff"
+        strokeWidth="3.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function SendIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      style={{ transform: "scaleX(-1)" }}
+    >
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  );
+}
+
+function StopIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+    </svg>
   );
 }
 

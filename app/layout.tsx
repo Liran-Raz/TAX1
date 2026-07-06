@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Rubik } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
@@ -13,6 +13,13 @@ export const metadata: Metadata = {
   title: "עוזר מיסוי לעסקים | ChatTAX",
   description:
     "צאט חכם שעונה על שאלות מיסוי, מע\"מ, מס הכנסה והוצאות מוכרות לעסקים ישראלים",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#2563eb",
 };
 
 export default function RootLayout({
