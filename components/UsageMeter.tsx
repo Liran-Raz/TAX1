@@ -1,13 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import type { PlanId, UsageSnapshot } from "@/lib/types";
 
 const PLAN_LABELS: Record<PlanId, string> = {
   free: "חינם",
-  basic: "בסיסי",
-  pro: "מקצועי",
+  pro: "PRO",
+  ultra: "ULTRA",
 };
 
 /** Fires whenever a question is sent, so the meter refreshes promptly. */
@@ -65,8 +66,10 @@ export function UsageMeter() {
       </div>
       <div className="mt-1.5 flex items-center justify-between text-[11px]">
         <span className="text-muted">תוכנית: {PLAN_LABELS[plan]}</span>
-        {plan === "free" && (
-          <span className="font-medium text-accent">שדרג בקרוב</span>
+        {plan !== "ultra" && (
+          <Link href="/pricing" className="font-medium text-accent hover:underline">
+            שדרג
+          </Link>
         )}
       </div>
     </div>
