@@ -69,7 +69,7 @@ export default function PricingPage() {
         </p>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-accent hover:underline">
+          <Link href="/chat" className="text-sm text-accent hover:underline">
             → חזרה לצ&apos;אט
           </Link>
         </div>

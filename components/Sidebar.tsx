@@ -65,7 +65,7 @@ export function Sidebar({
           </div>
 
           <Link
-            href="/"
+            href="/chat"
             onClick={onClose}
             className="flex items-center justify-center gap-2 w-full rounded-xl bg-accent text-accent-foreground px-4 py-2.5 font-medium shadow-sm hover:bg-accent-hover transition-colors"
           >
