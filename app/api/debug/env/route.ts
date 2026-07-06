@@ -1,5 +1,5 @@
-// TEMPORARY diagnostic — reports whether env vars are present/parseable without
-// leaking any secret values. Remove after debugging the production 500s.
+// TEMPORARY diagnostic — reports env presence + tries a live firebase-admin
+// call to surface the real init error. No secret values are leaked.
 
 export const runtime = "nodejs";
 
@@ -18,29 +18,31 @@ export async function GET() {
       parsed = {
         project_id: o.project_id ?? null,
         client_email_present: !!o.client_email,
-        private_key_present: !!pk,
         private_key_len: pk.length,
         private_key_header_ok: pk.startsWith("-----BEGIN PRIVATE KEY-----"),
+        private_key_footer_ok: pk.trimEnd().endsWith("-----END PRIVATE KEY-----"),
         private_key_has_real_newlines: pk.includes("\n"),
-        private_key_has_escaped_newlines: pk.includes("\\n"),
       };
     } catch (e) {
       parseError = String(e);
     }
   }
 
+  // Try to actually use firebase-admin and capture the real error.
+  let adminResult: string;
+  try {
+    const { adminDb } = await import("@/lib/firebase-admin");
+    await adminDb.collection("users").limit(1).get();
+    adminResult = "ok";
+  } catch (e) {
+    adminResult =
+      e instanceof Error
+        ? `${e.name}: ${e.message}`
+        : `non-error: ${String(e)}`;
+  }
+
   return Response.json({
-    firebaseAdminJson: {
-      present: !!j,
-      length: j ? j.length : 0,
-      parsed,
-      parseError,
-    },
-    lemonSqueezy: {
-      webhookSecretPresent: !!process.env.LEMONSQUEEZY_WEBHOOK_SECRET,
-      checkoutProPresent: !!process.env.NEXT_PUBLIC_LS_CHECKOUT_PRO,
-      checkoutUltraPresent: !!process.env.NEXT_PUBLIC_LS_CHECKOUT_ULTRA,
-    },
-    googleKeyPresent: !!process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    firebaseAdminJson: { present: !!j, length: j ? j.length : 0, parsed, parseError },
+    adminResult,
   });
 }
