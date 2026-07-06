@@ -22,11 +22,21 @@ export function verifyLsSignature(
   }
 }
 
+// Optional exact match by numeric variant id (if configured in env).
 function variantToPlan(variantId: unknown): PlanId | null {
   const s = String(variantId);
   if (process.env.LS_VARIANT_PRO && s === process.env.LS_VARIANT_PRO) return "pro";
   if (process.env.LS_VARIANT_ULTRA && s === process.env.LS_VARIANT_ULTRA)
     return "ultra";
+  return null;
+}
+
+// Fallback match by product/variant name — so setup only needs the checkout
+// links + webhook secret, not the numeric variant ids. Check ULTRA first.
+function nameToPlan(productName: unknown, variantName: unknown): PlanId | null {
+  const name = `${productName ?? ""} ${variantName ?? ""}`.toUpperCase();
+  if (name.includes("ULTRA")) return "ultra";
+  if (name.includes("PRO")) return "pro";
   return null;
 }
 
@@ -39,10 +49,19 @@ const ENTITLED_STATUSES = new Set([
   "cancelled",
 ]);
 
-/** Resolve the plan a subscription should grant, from its status + variant. */
-export function resolvePlan(status: unknown, variantId: unknown): PlanId {
-  if (typeof status === "string" && ENTITLED_STATUSES.has(status)) {
-    return variantToPlan(variantId) ?? "free";
-  }
-  return "free";
+export type SubscriptionAttrs = {
+  status?: string;
+  variant_id?: number;
+  product_name?: string;
+  variant_name?: string;
+};
+
+/** Resolve the plan a subscription grants, from its status + variant/product. */
+export function resolvePlan(attrs: SubscriptionAttrs): PlanId {
+  if (!attrs.status || !ENTITLED_STATUSES.has(attrs.status)) return "free";
+  return (
+    variantToPlan(attrs.variant_id) ??
+    nameToPlan(attrs.product_name, attrs.variant_name) ??
+    "free"
+  );
 }

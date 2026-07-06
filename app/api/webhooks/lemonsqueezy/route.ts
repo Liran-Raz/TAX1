@@ -1,6 +1,10 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
-import { resolvePlan, verifyLsSignature } from "@/lib/lemonsqueezy";
+import {
+  resolvePlan,
+  verifyLsSignature,
+  type SubscriptionAttrs,
+} from "@/lib/lemonsqueezy";
 
 export const runtime = "nodejs";
 
@@ -22,7 +26,7 @@ export async function POST(req: Request) {
 
   let payload: {
     meta?: { event_name?: string; custom_data?: { uid?: string } };
-    data?: { id?: string; attributes?: { status?: string; variant_id?: number } };
+    data?: { id?: string; attributes?: SubscriptionAttrs };
   };
   try {
     payload = JSON.parse(raw);
@@ -32,7 +36,7 @@ export async function POST(req: Request) {
 
   const eventName = payload.meta?.event_name ?? "unknown";
   const uid = payload.meta?.custom_data?.uid;
-  const attrs = payload.data?.attributes ?? {};
+  const attrs: SubscriptionAttrs = payload.data?.attributes ?? {};
 
   // Only subscription events carry what we need; acknowledge the rest.
   if (!eventName.startsWith("subscription")) {
@@ -43,7 +47,7 @@ export async function POST(req: Request) {
     return new Response("ok (no uid)");
   }
 
-  const plan = resolvePlan(attrs.status, attrs.variant_id);
+  const plan = resolvePlan(attrs);
   await adminDb
     .collection("users")
     .doc(uid)
