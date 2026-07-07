@@ -44,9 +44,9 @@
     background:var(--bg);
     color:var(--ink);
     line-height:1.6;
-    overflow-x:hidden;
+    overflow-x:clip;
   }
-  html{overflow-x:hidden;}
+  html{overflow-x:clip;}
 
   .wrap{
     width:min(1180px, 100% - (var(--pad) * 2));
@@ -135,7 +135,7 @@
   }
 
   /* ============ Hero ============ */
-  .hero{ position:relative; padding-block:clamp(2.6rem, 6vw, 5rem) clamp(3rem, 7vw, 6rem); overflow:hidden; }
+  .hero{ position:relative; padding-block:clamp(2.6rem, 6vw, 5rem) clamp(3rem, 7vw, 6rem); overflow:clip; }
   .hero-bg-decor{ position:absolute; inset:0; z-index:0; pointer-events:none; }
   .blob{ position:absolute; border-radius:50%; filter:blur(60px); opacity:.55; }
   .blob-1{ width:420px;height:420px; background:radial-gradient(circle, var(--accent-soft), transparent 70%); top:-140px; inset-inline-end:-120px; }
@@ -397,7 +397,7 @@
     margin:clamp(2rem,5vw,4rem) auto; width:min(1180px, 100% - (var(--pad)*2));
     background:linear-gradient(135deg, var(--accent-darker), var(--accent) 55%, #3b82f6);
     border-radius:clamp(20px,3vw,32px); padding:clamp(2.6rem,6vw,4.5rem) clamp(1.5rem,5vw,4rem);
-    text-align:center; color:#fff; position:relative; overflow:hidden;
+    text-align:center; color:#fff; position:relative; overflow:clip;
   }
   .closing-cta::before{
     content:''; position:absolute; inset:0;
