@@ -6,5 +6,6 @@ export default async function ChatPage({
   params: Promise<{ chatId: string }>;
 }) {
   const { chatId } = await params;
-  return <ChatView chatId={chatId} />;
+  // key forces a clean remount (fresh history + state) whenever the chat changes.
+  return <ChatView key={chatId} chatId={chatId} />;
 }

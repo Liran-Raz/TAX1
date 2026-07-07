@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { newChatPath } from "@/lib/new-chat";
 
 export function MobileHeader({ onMenu }: { onMenu: () => void }) {
+  const router = useRouter();
   return (
     <header className="md:hidden safe-top sticky top-0 z-30 flex items-center justify-between gap-2 border-b border-border bg-card/90 px-3 py-2.5 backdrop-blur">
       <button
@@ -19,13 +21,14 @@ export function MobileHeader({ onMenu }: { onMenu: () => void }) {
         <span className="font-semibold text-[15px]">עוזר מיסוי</span>
       </div>
 
-      <Link
-        href="/chat"
+      <button
+        type="button"
+        onClick={() => router.push(newChatPath())}
         aria-label="שיחה חדשה"
         className="flex h-10 w-10 items-center justify-center rounded-xl text-accent hover:bg-accent-soft active:bg-accent-soft transition-colors"
       >
         <PlusIcon />
-      </Link>
+      </button>
     </header>
   );
 }
