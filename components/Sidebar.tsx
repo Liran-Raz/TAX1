@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { subscribeToChats } from "@/lib/chat-store-client";
+import { newChatPath } from "@/lib/new-chat";
 import type { Chat } from "@/lib/types";
 import { LogoMark } from "@/components/MobileHeader";
 import { UsageMeter } from "@/components/UsageMeter";
@@ -17,6 +18,7 @@ export function Sidebar({
   onClose: () => void;
 }) {
   const { user, signOut } = useAuth();
+  const router = useRouter();
   const params = useParams<{ chatId?: string }>();
   const activeChatId = params?.chatId;
   const [chats, setChats] = useState<Chat[]>([]);
@@ -26,6 +28,11 @@ export function Sidebar({
     const unsub = subscribeToChats(user.uid, setChats);
     return () => unsub();
   }, [user]);
+
+  const handleNewChat = () => {
+    onClose();
+    router.push(newChatPath());
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -64,14 +71,14 @@ export function Sidebar({
             </button>
           </div>
 
-          <Link
-            href="/chat"
-            onClick={onClose}
+          <button
+            type="button"
+            onClick={handleNewChat}
             className="flex items-center justify-center gap-2 w-full rounded-xl bg-accent text-accent-foreground px-4 py-2.5 font-medium shadow-sm hover:bg-accent-hover transition-colors"
           >
             <PlusIcon />
             <span>שיחה חדשה</span>
-          </Link>
+          </button>
         </div>
 
         {/* Chat list */}

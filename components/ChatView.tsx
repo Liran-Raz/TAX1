@@ -27,14 +27,12 @@ type HistoricMessage = {
  * inner component. This is important because useChat only reads its initial
  * messages at mount time.
  */
-export function ChatView({ chatId: propChatId }: { chatId: string | null }) {
+export function ChatView({ chatId: propChatId }: { chatId: string }) {
   const { user } = useAuth();
-  const [history, setHistory] = useState<HistoricMessage[] | null>(
-    propChatId ? null : [],
-  );
+  const [history, setHistory] = useState<HistoricMessage[] | null>(null);
 
   useEffect(() => {
-    if (!user || !propChatId) return;
+    if (!user) return;
     let cancelled = false;
     (async () => {
       const snap = await getDocs(
@@ -72,30 +70,19 @@ export function ChatView({ chatId: propChatId }: { chatId: string | null }) {
     );
   }
 
-  // Fresh mount each time propChatId changes so useChat picks up the new initial messages
-  return (
-    <ChatViewInner
-      key={propChatId ?? "new"}
-      chatId={propChatId}
-      initialMessages={history}
-    />
-  );
+  return <ChatViewInner chatId={propChatId} initialMessages={history} />;
 }
 
 function ChatViewInner({
-  chatId: propChatId,
+  chatId: effectiveChatId,
   initialMessages,
 }: {
-  chatId: string | null;
+  chatId: string;
   initialMessages: HistoricMessage[];
 }) {
   const { getIdToken } = useAuth();
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const [effectiveChatId] = useState(
-    () => propChatId ?? crypto.randomUUID(),
-  );
 
   const transport = useMemo(
     () =>
@@ -124,14 +111,6 @@ function ChatViewInner({
     messages: initialMessages as unknown as UIMessage[],
     transport,
     onFinish: () => {
-      // Mirror the chat id in the URL for a brand-new chat WITHOUT unmounting
-      // (a real router.replace would remount and briefly wipe the visible messages).
-      if (!propChatId && typeof window !== "undefined") {
-        const desired = `/chat/${effectiveChatId}`;
-        if (window.location.pathname !== desired) {
-          window.history.replaceState(null, "", desired);
-        }
-      }
       // Refresh the usage meter now that a question was consumed.
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event(USAGE_EVENT));
