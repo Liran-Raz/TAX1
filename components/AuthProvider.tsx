@@ -9,7 +9,10 @@ import {
   type ReactNode,
 } from "react";
 import {
+  createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut as fbSignOut,
   type User,
@@ -20,6 +23,9 @@ type AuthContextValue = {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   getIdToken: () => Promise<string | null>;
 };
@@ -44,6 +50,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       signInWithGoogle: async () => {
         await signInWithPopup(auth, googleProvider);
+      },
+      signInWithEmail: async (email, password) => {
+        await signInWithEmailAndPassword(auth, email, password);
+      },
+      signUpWithEmail: async (email, password) => {
+        await createUserWithEmailAndPassword(auth, email, password);
+      },
+      sendPasswordReset: async (email) => {
+        await sendPasswordResetEmail(auth, email);
       },
       signOut: async () => {
         await fbSignOut(auth);
